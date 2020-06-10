@@ -100,6 +100,15 @@ informative:
     date: 2020-02-21
     target: "https://www.felixguenther.info/docs/QUIPS2020_RobustChannels.pdf"
 
+  MultiUserSecurity:
+    title: "The Multi-user Security of GCM, Revisited: Tight Bounds for Nonce Randomization"
+    author:
+      - ins: V. T. Hoang
+      - ins: S. Tessaro
+      - ins: A. Thiruvengadam
+    date: 2018-10-18
+    target: https://dl.acm.org/doi/10.1145/3243734.3243816
+
 
 --- abstract
 
@@ -1552,30 +1561,39 @@ number of attempts to forge packets. TLS achieves this by closing connections
 after any record fails an authentication check. In comparison, QUIC ignores any
 packet that cannot be authenticated, allowing multiple forgery attempts.
 
-Endpoints MUST count the number of received packets that fail authentication for
-each set of keys.  If the number of packets that fail authentication with the
-same key exceeds a limit that is specific to the AEAD in use, the endpoint MUST
-stop using those keys.  Endpoints MUST initiate a key update before reaching
-this limit.  If a key update is not possible, the endpoint MUST immediately
-close the connection.  Applying a limit reduces the probability that an attacker
-is able to successfully forge a packet; see {{AEBounds}} and {{ROBUST}}.
+Endpoints MUST count the number of received packets that fail authentication
+for each set of keys and during the lifetime of a connection. If the number of
+packets that fail authentication with the same key exceeds a limit that is
+specific to the AEAD in use, the endpoint MUST stop using those keys.
+Endpoints MUST initiate a key update before reaching this limit.
+If a key update is not possible, the endpoint MUST immediately close the
+connection. If the number of packets that fail authentication within the
+connection (across all keys) exceeds a limit that is specific to the AEAD in
+use, the endpoint MUST immediately close the connection. Applying these limits
+reduces the probability that an attacker is able to successfully forge a
+packet in both single- and multi-user security models; see {{AEBounds}},
+{{ROBUST}}, and {{MultiUserSecurity}}. 
 
 Note:
 
-: Due to the way that header protection protects the Key Phase, packets that are
-  discarded are likely to have an even distribution of both Key Phase values.
-  This means that packets that fail authentication will often use the packet
-  protection keys from the next key phase.  It is therefore necessary to also
-  track the number of packets that fail authentication with the next set of
-  packet protection keys.  To avoid exhaustion of both sets of keys, it might be
-  necessary to initiate two key updates in succession.
+: Due to the way that header protection protects the Key Phase, packets that
+  are discarded are likely to have an even distribution of both Key Phase
+  values. This means that packets that fail authentication will often use the
+  packet protection keys from the next key phase.  It is therefore necessary
+  to also track the number of packets that fail authentication with the next
+  set of packet protection keys.  To avoid exhaustion of both sets of keys, it
+  might be necessary to initiate two key updates in succession.
 
-For AEAD_AES_128_GCM, AEAD_AES_256_GCM, and AEAD_CHACHA20_POLY1305, the limit on
-the number of packets that fail authentication is 2^36.  Note that the analysis
-in {{AEBounds}} supports a higher limit for the AEAD_AES_128_GCM and
-AEAD_AES_256_GCM, but this specification recommends a lower limit.  For
-AEAD_AES_128_CCM, the limit on the number of packets that fail authentication
-is 2^23.5; see {{ccm-bounds}}.
+The per-key and per-connection limits of each AEAD are given in the following
+table. Future analyses and specifications MAY relax these limits.
+
+| AEAD           | Per-Key Limit | Per-Connection Limit | Reference |
+|:---------------|:--------------|:---------------------|:----------|
+| AEAD_AES_128_GCM | 2^36 | 2^63 | {{MultiUserSecurity}} |
+| AEAD_AES_256_GCM | 2^36 | 2^63 | {{MultiUserSecurity}} |
+| AEAD_CHACHA20_POLY1305 | 2^36 | 2^36 | {{AEBounds}} |
+| AEAD_AES_128_CCM | 2^23.5 | 2^23.5 | {{ccm-bounds}} |
+{: #aead-limits title="AEAD Integrity Limits"}
 
 Note:
 
@@ -1586,13 +1604,13 @@ Note:
   Where packets might be larger than 2^14 bytes in length, smaller limits might
   be needed.
 
-Any TLS cipher suite that is specified for use with QUIC MUST define limits on
-the use of the associated AEAD function that preserves margins for
-confidentiality and integrity. That is, limits MUST be specified for the number
-of packets that can be authenticated and for the number packets that can fail
-authentication.  Providing a reference to any analysis upon which values are
-based - and any assumptions used in that analysis - allows limits to be adapted
-to varying usage conditions.
+Any TLS cipher suite that is specified for use with QUIC MUST define per-key
+and per-connection limits on the use of the associated AEAD function that
+preserves margins for confidentiality and integrity. That is, limits MUST be
+specified for the number of packets that can be authenticated and for the
+number packets that can fail authentication. Providing a reference to any
+analysis upon which values are based - and any assumptions used in that
+analysis - allows limits to be adapted to varying usage conditions.
 
 
 ## Key Update Error Code {#key-update-error}
@@ -2170,10 +2188,10 @@ packet = 4cfe4189655e5cd55c41f69080575d7999c25a5bfb
 
 # Analysis of Limits on AEAD_AES_128_CCM Usage {#ccm-bounds}
 
-TLS {{?TLS13}} and {{AEBounds}} do not specify limits on usage for
-AEAD_AES_128_CCM. However, any AEAD that is used with QUIC requires limits on
-use that ensure that both confidentiality and integrity are preserved. This
-section documents that analysis.
+TLS {{?TLS13}} and {{AEBounds}} do not specify per-key or per-connection
+limits on usage for AEAD_AES_128_CCM. However, any AEAD that is used with QUIC
+requires limits on use that ensure that both confidentiality and integrity are
+preserved. This section documents that analysis.
 
 {{?CCM-ANALYSIS=DOI.10.1007/3-540-36492-7_7}} is used as the basis of this
 analysis. The results of that analysis are used to derive usage limits that are
