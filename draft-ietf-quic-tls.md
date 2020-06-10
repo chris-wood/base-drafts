@@ -1576,7 +1576,8 @@ packets that fail authentication is 2^54; see {{?GCM-MU}}.
 For AEAD_CHACHA20_POLY1305, the limit on number of packets that fail
 authentication is 2^36; see {{AEBounds}}.
 For AEAD_AES_128_CCM, the limit on the number of packets that fail
-authentication is 2^23.5; see {{ccm-bounds}}.
+authentication is 2^23.5; see {{ccm-bounds}}. Future analyses and specifications
+MAY relax these limits.
 
 Note:
 
