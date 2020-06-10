@@ -1572,13 +1572,13 @@ packet; see {{AEBounds}}, {{ROBUST}}, and
 
 Note:
 
- : Due to the way that header protection protects the Key Phase, packets that are
-   discarded are likely to have an even distribution of both Key Phase values.
-   This means that packets that fail authentication will often use the packet
-   protection keys from the next key phase.  It is therefore necessary to also
-   track the number of packets that fail authentication with the next set of
-   packet protection keys.  To avoid exhaustion of both sets of keys, it might be
-   necessary to initiate two key updates in succession.
+: Due to the way that header protection protects the Key Phase, packets that are
+  discarded are likely to have an even distribution of both Key Phase values.
+  This means that packets that fail authentication will often use the packet
+  protection keys from the next key phase.  It is therefore necessary to also
+  track the number of packets that fail authentication with the next set of
+  packet protection keys.  To avoid exhaustion of both sets of keys, it might be
+  necessary to initiate two key updates in succession.
 
 For AEAD_AES_128_GCM and AEAD_AES_256_GCM, the limit on number of
 packets that fail authentication is 2^54; see {{?GCM-MU}}.
