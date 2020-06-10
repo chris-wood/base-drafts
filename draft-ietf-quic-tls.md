@@ -100,15 +100,6 @@ informative:
     date: 2020-02-21
     target: "https://www.felixguenther.info/docs/QUIPS2020_RobustChannels.pdf"
 
-  MultiUserSecurity:
-    title: "The Multi-user Security of GCM, Revisited: Tight Bounds for Nonce Randomization"
-    author:
-      - ins: V. T. Hoang
-      - ins: S. Tessaro
-      - ins: A. Thiruvengadam
-    date: 2018-10-18
-    target: https://dl.acm.org/doi/10.1145/3243734.3243816
-
 
 --- abstract
 
