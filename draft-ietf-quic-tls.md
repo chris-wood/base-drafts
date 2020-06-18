@@ -2283,7 +2283,7 @@ approximation:
 v <= 2^182
 ~~~
 
-This is substantially smaller than the limit for AEAD_AES_128_GCM. Thus,
+This is substantially smaller than the limit for AEAD_AES_128_GCM. However,
 for consistency, this document uses the larger of the two -- 2^54 -- for both.
 
 # Analysis of AEAD_AES_128_CCM Usage Limits {#ccm-bounds}
