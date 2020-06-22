@@ -1545,6 +1545,19 @@ number of attempts to forge packets. TLS achieves this by closing connections
 after any record fails an authentication check. In comparison, QUIC ignores any
 packet that cannot be authenticated, allowing multiple forgery attempts.
 
+Endpoints MUST count the number of encrypted packets for each set of keys.
+If the number of encrypted packets with the same key exceeds a limit that
+is specific to the AEAD in use, the endpoint MUST stop using those keys.
+Endpoints MUST initiate a key update before reaching this limit. For
+AEAD_AES_128_GCM and AEAD_AES_256_GCM, the confidentiality limit is 2^27
+encrypted packets; see {{gcm-bounds}}.  For AEAD_CHACHA20_POLY1305, the
+confidentiality limit is greater than the number of possible packets (2^62)
+and so can be disregarded. For AEAD_AES_128_CCM, the confidentiality limit is
+2^23 encrypted packets; see {{ccm-bounds}}.
+If a key update is not possible, the endpoint MUST immediately close the
+connection.  Applying a limit reduces the probability that an attacker can
+distinguish the AEAD in use from an ideal PRP; see {{AEBounds}} and {{ROBUST}}.
+
 In addition to counting packets sent, endpoints MUST count the number of
 received packets that fail authentication during the lifetime of a connection.
 If the number of packets sent or fail authentication within the connection
@@ -1563,14 +1576,6 @@ Note:
   track the number of packets that fail authentication with the next set of
   packet protection keys.  To avoid exhaustion of both sets of keys, it might be
   necessary to initiate two key updates in succession.
-
-A connection MUST be closed if the number of encrypted packets exceeds the
-confidentiality limits for the selected AEAD. For AEAD_AES_128_GCM and
-AEAD_AES_256_GCM, the confidentiality limit is 2^27 encrypted packets; see
-{{gcm-bounds}}.  For AEAD_CHACHA20_POLY1305, the confidentiality limit is
-greater than the number of possible packets (2^62) and so can be disregarded.
-For AEAD_AES_128_CCM, the confidentiality limit is 2^23 encrypted packets;
-see {{ccm-bounds}}.
 
 A connection MUST be closed if the number of packets that fail authentication
 exceed the integrity limit for the selected AEAD. For AEAD_AES_128_GCM, and the
