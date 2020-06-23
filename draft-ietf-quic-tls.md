@@ -1536,7 +1536,7 @@ After this period, old read keys and their corresponding secrets SHOULD be
 discarded.
 
 
-## Minimum Key Update Frequency
+## Limits on Key Usage
 
 The usage limits defined in TLS 1.3 exist for protection against attacks
 on confidentiality and apply to successful applications of AEAD protection. The
@@ -1545,37 +1545,29 @@ number of attempts to forge packets. TLS achieves this by closing connections
 after any record fails an authentication check. In comparison, QUIC ignores any
 packet that cannot be authenticated, allowing multiple forgery attempts.
 
-Endpoints MUST count the number of encrypted packets for each set of keys.
-If the number of encrypted packets with the same key exceeds a limit that
-is specific to the AEAD in use, the endpoint MUST stop using those keys.
-Endpoints MUST initiate a key update before reaching this limit. For
-AEAD_AES_128_GCM and AEAD_AES_256_GCM, the confidentiality limit is 2^27
-encrypted packets; see {{gcm-bounds}}.  For AEAD_CHACHA20_POLY1305, the
-confidentiality limit is greater than the number of possible packets (2^62)
-and so can be disregarded. For AEAD_AES_128_CCM, the confidentiality limit is
-2^23 encrypted packets; see {{ccm-bounds}}.
-If a key update is not possible, the endpoint MUST immediately close the
-connection.  Applying a limit reduces the probability that an attacker can
-distinguish the AEAD in use from an ideal PRP; see {{AEBounds}} and {{ROBUST}}.
+Endpoints MUST count the number of encrypted packets for each set of keys. If
+the number of encrypted packets with the same key exceeds a limit that is
+specific to the AEAD in use, the endpoint MUST stop using those keys. If a key
+update is not possible, the endpoint MUST immediately close the connection.
+Applying a limit reduces the probability that an attacker can distinguish the
+AEAD in use from a random permutation; see {{AEBounds}}, {{ROBUST}}, and
+{{?GCM-MU=DOI.10.1145/3243734.3243816}}.
+
+Endpoints MUST initiate a key update before the number of encrypted packets
+reaches the confidentiality limit for the selected AEAD. For AEAD_AES_128_GCM
+and AEAD_AES_256_GCM, the confidentiality limit is 2^27 encrypted packets; see
+{{gcm-bounds}}. For AEAD_CHACHA20_POLY1305, the confidentiality limit is greater
+than the number of possible packets (2^62) and so can be disregarded. For
+AEAD_AES_128_CCM, the confidentiality limit is 2^23 encrypted packets; see
+{{ccm-bounds}}.
 
 In addition to counting packets sent, endpoints MUST count the number of
 received packets that fail authentication during the lifetime of a connection.
 If the number of packets sent or fail authentication within the connection
 (across all keys) exceeds a limit that is specific to the AEAD in use, the
 endpoint MUST immediately close the connection and not attempt to process any
-further packets. Applying a limit reduces the probability that an attacker can
-distinguish the AEAD in use from a random permutation; see {{AEBounds}},
-{{ROBUST}}, and {{?GCM-MU=DOI.10.1145/3243734.3243816}}.
-
-Note:
-
-: Due to the way that header protection protects the Key Phase, packets that are
-  discarded are likely to have an even distribution of both Key Phase values.
-  This means that packets that fail authentication will often use the packet
-  protection keys from the next key phase.  It is therefore necessary to also
-  track the number of packets that fail authentication with the next set of
-  packet protection keys.  To avoid exhaustion of both sets of keys, it might be
-  necessary to initiate two key updates in succession.
+further packets.  Applying a limit reduces the probability that an attacker can
+successfully forge a packet; see {{AEBounds}}, {{ROBUST}}, and {{?GCM-MU}}.
 
 A connection MUST be closed if the number of packets that fail authentication
 exceed the integrity limit for the selected AEAD. For AEAD_AES_128_GCM, and the
@@ -1597,9 +1589,9 @@ Note:
   be needed.
 
 Any TLS cipher suite that is specified for use with QUIC MUST define
-per-connection limits on the use of the associated AEAD function that
-preserves margins for confidentiality and integrity. That is, limits MUST be
-specified for the number of packets that can be authenticated and for the
+confidentiality and integrity limits on the use of the associated AEAD function
+that preserves margins for confidentiality and integrity. That is, limits MUST
+be specified for the number of packets that can be authenticated and for the
 number packets that can fail authentication. Providing a reference to any
 analysis upon which values are based - and any assumptions used in that
 analysis - allows limits to be adapted to varying usage conditions.
