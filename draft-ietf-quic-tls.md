@@ -1588,13 +1588,13 @@ Note:
   Where packets might be larger than 2^14 bytes in length, smaller limits might
   be needed.
 
-Any TLS cipher suite that is specified for use with QUIC MUST define
-confidentiality and integrity limits on the use of the associated AEAD function
-that preserves margins for confidentiality and integrity. That is, limits MUST
-be specified for the number of packets that can be authenticated and for the
-number packets that can fail authentication. Providing a reference to any
-analysis upon which values are based - and any assumptions used in that
-analysis - allows limits to be adapted to varying usage conditions.
+Any TLS cipher suite that is specified for use with QUIC MUST define limits on
+the use of the associated AEAD function that preserves margins for
+confidentiality and integrity.  That is, limits MUST be specified for the number
+of packets that can be authenticated and for the number packets that can fail
+authentication.  Providing a reference to any analysis upon which values are
+based - and any assumptions used in that analysis - allows limits to be adapted
+to varying usage conditions.
 
 
 ## Key Update Error Code {#key-update-error}
