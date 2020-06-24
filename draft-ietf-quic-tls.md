@@ -1536,7 +1536,7 @@ After this period, old read keys and their corresponding secrets SHOULD be
 discarded.
 
 
-## Limits on Key Usage
+## Limits on AEAD Usage
 
 This document sets usage limits for AEAD algorithms to ensure that overuse does
 not give an adversary a disproportionate advantage in attacking the
