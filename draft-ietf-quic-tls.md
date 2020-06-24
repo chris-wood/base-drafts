@@ -1538,6 +1538,10 @@ discarded.
 
 ## Limits on Key Usage
 
+This document sets usage limits for AEAD keys to ensure that overuse of a single key does
+not give an adversary a disproportionate advantage in attacking the confidentiality
+and integrity of communications.
+
 The usage limits defined in TLS 1.3 exist for protection against attacks
 on confidentiality and apply to successful applications of AEAD protection. The
 integrity protections in authenticated encryption also depend on limiting the
